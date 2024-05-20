@@ -18,10 +18,11 @@ type Base struct {
 	Token           string
 	ServerURL       string
 	DtableServerURL string
+	DtableDbUrl     string
 	JwtToken        string
 	JwtExp          int64
 	Headers         map[string]string
-	WorkspaceID     string
+	WorkspaceID     int
 	DtableUUID      string
 	DtableName      string
 	Timeout         int
@@ -64,15 +65,20 @@ func (s *Base) Auth(withSocketIO bool) error {
 		s.DtableServerURL = parseServerURL(serverURL)
 	}
 
+	dbURL, ok := ret["dtable_db"].(string)
+	if ok {
+		s.DtableDbUrl = parseServerURL(dbURL)
+	}
+
 	accessToken, ok := ret["access_token"].(string)
 	if ok {
 		s.JwtToken = accessToken
 		s.Headers = makeHeaders(accessToken)
 	}
 
-	workspaceID, ok := ret["workspace_id"].(string)
+	workspaceID, ok := ret["workspace_id"].(float64)
 	if ok {
-		s.WorkspaceID = workspaceID
+		s.WorkspaceID = int(workspaceID)
 	}
 
 	dtableUUID, ok := ret["dtable_uuid"].(string)
@@ -1082,7 +1088,7 @@ func (s *Base) UploadBytesFile(name string, r io.Reader, relativePath, fileType 
 		return nil, err
 	}
 
-	url := fmt.Sprintf("%s/workspace/%s/asset/%s/%s/%s",
+	url := fmt.Sprintf("%s/workspace/%d/asset/%s/%s/%s",
 		strings.Trim(s.ServerURL, "/"), s.WorkspaceID,
 		s.DtableUUID, path, rowName)
 
@@ -1207,7 +1213,7 @@ func (s *Base) UploadLocalFile(filePath, name, relativePath, fileType string, re
 		return nil, err
 	}
 
-	url := fmt.Sprintf("%s/workspace/%s/asset/%s/%s/%s",
+	url := fmt.Sprintf("%s/workspace/%d/asset/%s/%s/%s",
 		strings.Trim(s.ServerURL, "/"), s.WorkspaceID,
 		s.DtableUUID, path, rowName)
 
@@ -1277,6 +1283,45 @@ func (s *Base) ListRows(tableName, viewName string) (interface{}, error) {
 	}
 
 	return ret["rows"], nil
+}
+
+func (s *Base) Query(sql string, convert bool) (interface{}, error) {
+	url := s.DtableDbUrl + "/api/v1/query/" + s.DtableUUID + "/"
+
+	data := make(map[string]interface{})
+	data["sql"] = sql
+	data["convert_keys"] = convert
+
+	jsonStr, err := json.Marshal(data)
+	if err != nil {
+		err := fmt.Errorf("failed to encode post data: %v", err)
+		return nil, err
+	}
+
+	status, body, err := httpPost(url, s.Headers, bytes.NewBuffer(jsonStr), s.Timeout)
+	if err != nil {
+		err := fmt.Errorf("failed to post row to %s: %v", url, err)
+		return nil, err
+	}
+
+	if status >= 400 {
+		err := fmt.Errorf("bad response for POST: %d", status)
+		return nil, err
+	}
+
+	rsp, err := parseResponse(body)
+	if err != nil {
+		err := fmt.Errorf("failed to parse response: %v", err)
+		return nil, err
+	}
+
+	ret, ok := rsp.(map[string]interface{})
+	if !ok {
+		err := fmt.Errorf("failed to assert response")
+		return nil, err
+	}
+
+	return ret["results"], nil
 }
 
 func createForm(values map[string]io.Reader, name string) (io.Reader, string, error) {

@@ -2,9 +2,10 @@ package seatable_api
 
 import (
 	"fmt"
-	"github.com/graarh/golang-socketio"
-	"github.com/graarh/golang-socketio/transport"
 	"time"
+
+	gosocketio "github.com/graarh/golang-socketio"
+	"github.com/graarh/golang-socketio/transport"
 )
 
 type SocketIO struct {

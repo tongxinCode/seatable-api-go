@@ -1,4 +1,4 @@
-module github.com/seatable/seatable-api-go/seatable_api
+module github.com/keepwn/seatable-api-go
 
 go 1.15
 

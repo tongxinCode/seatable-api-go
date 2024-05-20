@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/mattn/go-isatty"
 	"os"
+
+	"github.com/mattn/go-isatty"
 )
 
 type Context struct {
