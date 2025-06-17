@@ -1351,7 +1351,7 @@ func createForm(values map[string]io.Reader, name string) (io.Reader, string, er
 func makeHeaders(token string) map[string]string {
 	headers := make(map[string]string)
 	headers["Content-Type"] = "application/json"
-	headers["Authorization"] = "Token " + token
+	headers["Authorization"] = "Bearer " + token
 
 	return headers
 }

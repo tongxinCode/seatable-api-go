@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	serverURL = "https://cloud.seatable.io"
-	token     = "448f4dd6e04fdb31f6f32ece7a03f9c641bba089"
-	tableName = "table1"
+	serverURL = "http://172.28.197.89"
+	baseToken = "673ce1c6dc71487c63e9e9e99a9397805c125d78"
+	tableName = "Table3"
 )
 
 var base *Base
@@ -28,7 +28,7 @@ func TestMain(m *testing.M) {
 }
 
 func getBase() (*Base, error) {
-	base := Init(token, serverURL)
+	base := Init(baseToken, serverURL)
 	err := base.Auth(false)
 	return base, err
 }
@@ -45,7 +45,7 @@ func TestPost(t *testing.T) {
 	rowData := make(map[string]interface{})
 	rowData["Name"] = "name1"
 	rowData["age"] = 20
-	ret, err := base.AppendRow("table1", rowData)
+	ret, err := base.AppendRow(tableName, rowData)
 	if err != nil {
 		t.Errorf("failed to append row: %v", err)
 	}
@@ -62,6 +62,7 @@ func TestPut(t *testing.T) {
 	}
 }
 
+// need API token
 func TestUploadLocalFile(t *testing.T) {
 	_, err := base.UploadLocalFile("testfile.md", "testfile.md", "", "file", false)
 	if err != nil {
@@ -69,6 +70,7 @@ func TestUploadLocalFile(t *testing.T) {
 	}
 }
 
+// need API token
 func TestUploadBytesFile(t *testing.T) {
 	r := bytes.NewReader([]byte("hello world"))
 	_, err := base.UploadBytesFile("hello.md", r, "", "file", false)
@@ -78,7 +80,7 @@ func TestUploadBytesFile(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	_, err := base.DeleteRow("table1", rowID)
+	_, err := base.DeleteRow(tableName, rowID)
 	if err != nil {
 		t.Errorf("failed to delete row: %v", err)
 	}
