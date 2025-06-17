@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	neturl "net/url"
@@ -944,7 +943,7 @@ func (s *Base) DeleteColumn(tableName, columnKey string) (map[string]interface{}
 }
 
 func (s *Base) DownloadFile(url, savePath string) error {
-	if strings.Index(url, s.DtableUUID) < 0 {
+	if !strings.Contains(url, s.DtableUUID) {
 		err := fmt.Errorf("url invalid")
 		return err
 	}
@@ -1430,7 +1429,7 @@ func httpCommon(req *http.Request, headers map[string]string, timeout int) (int,
 	}
 	defer rsp.Body.Close()
 
-	body, err := ioutil.ReadAll(rsp.Body)
+	body, err := io.ReadAll(rsp.Body)
 	if err != nil {
 		err := fmt.Errorf("failed to read from response body: %v", err)
 		return rsp.StatusCode, nil, err

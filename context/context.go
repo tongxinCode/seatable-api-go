@@ -25,7 +25,7 @@ func New() (*Context, error) {
 	if isCloud && !isatty.IsTerminal(os.Stdin.Fd()) {
 		var buf bytes.Buffer
 		buf.ReadFrom(os.Stdin)
-		err := json.Marshal(buf.Bytes(), &c.ContextData)
+		err := json.Unmarshal(buf.Bytes(), &c.ContextData)
 		if err != nil {
 			err := fmt.Errorf("failed to parse json data: %v", err)
 			return nil, err
