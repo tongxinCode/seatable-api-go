@@ -1249,7 +1249,7 @@ func (s *Base) Filter(tableName, conditions, viewName string) (*QuerySet, error)
 }
 */
 
-func (s *Base) ListRows(tableName, viewName string) (interface{}, error) {
+func (s *Base) ListRows(tableName, viewName string, limit int) (interface{}, error) {
 	url := s.DtableServerURL + "/api/v1/dtables/" + s.DtableUUID + "/rows/"
 
 	params := neturl.Values{}
@@ -1257,7 +1257,9 @@ func (s *Base) ListRows(tableName, viewName string) (interface{}, error) {
 	if viewName != "" {
 		params.Add("view_name", viewName)
 	}
-
+	if limit > 0 {
+		params.Add("limit", fmt.Sprintf("%d", limit))
+	}
 	status, body, err := httpGet(url, params.Encode(), s.Headers, s.Timeout, nil)
 	if err != nil {
 		err := fmt.Errorf("failed to request url: %s: %v", url, err)
