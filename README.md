@@ -6,6 +6,10 @@
 
 SeaTable API Go Client 是一个用于与 SeaTable 数据库进行交互的 Go 语言客户端库。它提供了完整的 CRUD 操作、文件管理、列管理以及实时 Socket.IO 连接功能。
 
+本项目在Seatable 4.2验证使用过。
+
+其他版本使用问题请参考(https://github.com/seatable/openapi)作适当修改。
+
 ## 安装
 
 ```bash
@@ -271,10 +275,11 @@ func (s *Base) FilterRows(tableName string, filters []map[string]interface{}, vi
 ```
 
 #### ListRows
-列出表中的所有行。
+列出表中固定数量的行。
+The response contains a maximum of 1000 rows regardless of the specified limit.
 
 ```go
-func (s *Base) ListRows(tableName, viewName string) (interface{}, error)
+func (s *Base) ListRows(tableName, viewName string, limit int) (interface{}, error)
 ```
 
 ### 列操作方法
@@ -378,6 +383,7 @@ func (s *Base) RemoveLink(linkID, tableName, otherTableName, rowID, otherRowID s
 
 #### Query
 执行 SQL 查询。
+Returns at most 10 000 rows.
 
 ```go
 func (s *Base) Query(sql string, convert bool) (interface{}, error)
